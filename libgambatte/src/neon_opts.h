@@ -73,24 +73,24 @@ static inline void neon_blend_frames_rgb565(
         uint16x8_t curr = vld1q_u16(src + i);
         uint16x8_t prev = vld1q_u16(dest + i);
         
-        // Extract RGB components
-        uint16x8_t r_curr = vandq_u16(curr, vdupq_n_u16(0xF800));
-        uint16x8_t g_curr = vandq_u16(curr, vdupq_n_u16(0x07E0));
+        // Extract RGB components (preserving bit positions)
+        uint16x8_t r_curr = vshrq_n_u16(vandq_u16(curr, vdupq_n_u16(0xF800)), 11);
+        uint16x8_t g_curr = vshrq_n_u16(vandq_u16(curr, vdupq_n_u16(0x07E0)), 5);
         uint16x8_t b_curr = vandq_u16(curr, vdupq_n_u16(0x001F));
         
-        uint16x8_t r_prev = vandq_u16(prev, vdupq_n_u16(0xF800));
-        uint16x8_t g_prev = vandq_u16(prev, vdupq_n_u16(0x07E0));
+        uint16x8_t r_prev = vshrq_n_u16(vandq_u16(prev, vdupq_n_u16(0xF800)), 11);
+        uint16x8_t g_prev = vshrq_n_u16(vandq_u16(prev, vdupq_n_u16(0x07E0)), 5);
         uint16x8_t b_prev = vandq_u16(prev, vdupq_n_u16(0x001F));
         
-        // Blend each component (using approximation for speed)
+        // Blend each component
         r_curr = vshrq_n_u16(vaddq_u16(
-            vmulq_u16(vshrq_n_u16(r_curr, 8), blend_vec),
-            vmulq_u16(vshrq_n_u16(r_prev, 8), inv_blend_vec)
+            vmulq_u16(r_curr, blend_vec),
+            vmulq_u16(r_prev, inv_blend_vec)
         ), 8);
         
         g_curr = vshrq_n_u16(vaddq_u16(
-            vmulq_u16(vshrq_n_u16(g_curr, 8), blend_vec),
-            vmulq_u16(vshrq_n_u16(g_prev, 8), inv_blend_vec)
+            vmulq_u16(g_curr, blend_vec),
+            vmulq_u16(g_prev, inv_blend_vec)
         ), 8);
         
         b_curr = vshrq_n_u16(vaddq_u16(
@@ -99,10 +99,10 @@ static inline void neon_blend_frames_rgb565(
         ), 8);
         
         // Recombine and store
-        r_curr = vshlq_n_u16(r_curr, 8);
-        g_curr = vshlq_n_u16(g_curr, 8);
-        
-        uint16x8_t result = vorrq_u16(vorrq_u16(r_curr, g_curr), b_curr);
+        uint16x8_t result = vorrq_u16(vorrq_u16(
+            vshlq_n_u16(r_curr, 11),
+            vshlq_n_u16(g_curr, 5)),
+            b_curr);
         vst1q_u16(dest + i, result);
     }
     

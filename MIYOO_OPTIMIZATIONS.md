@@ -47,14 +47,14 @@ export PATH=/opt/miyoo/usr/bin:$PATH
 
 #### Standard Build (Compatible)
 ```bash
-cd /home/runner/work/gambatte-libretro/gambatte-libretro
+cd gambatte-libretro
 make -f Makefile.libretro platform=miyoo clean
 make -f Makefile.libretro platform=miyoo -j$(nproc)
 ```
 
 #### Optimized Build (Recommended for OnionOS)
 ```bash
-cd /home/runner/work/gambatte-libretro/gambatte-libretro
+cd gambatte-libretro
 make -f Makefile.libretro platform=miyoo-mini clean
 make -f Makefile.libretro platform=miyoo-mini -j$(nproc)
 ```
@@ -64,7 +64,7 @@ This will produce: `gambatte_libretro.so`
 ### Cross-compilation from x86_64 Linux
 ```bash
 # With Miyoo toolchain installed
-cd /home/runner/work/gambatte-libretro/gambatte-libretro
+cd gambatte-libretro
 make -f Makefile.libretro platform=miyoo-mini \
     CC=/opt/miyoo/usr/bin/arm-linux-gcc \
     CXX=/opt/miyoo/usr/bin/arm-linux-g++ \

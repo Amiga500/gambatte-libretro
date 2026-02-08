@@ -98,9 +98,13 @@ if make -f Makefile.libretro platform=$PLATFORM -j$JOBS; then
         file gambatte_libretro.so
         
         # Calculate size
-        SIZE=$(stat -c%s "gambatte_libretro.so" 2>/dev/null || stat -f%z "gambatte_libretro.so" 2>/dev/null || echo "unknown")
-        SIZE_KB=$((SIZE / 1024))
-        echo "Size: ${SIZE_KB} KB"
+        SIZE=$(stat -c%s "gambatte_libretro.so" 2>/dev/null || stat -f%z "gambatte_libretro.so" 2>/dev/null || echo "0")
+        if [ "$SIZE" != "0" ]; then
+            SIZE_KB=$((SIZE / 1024))
+            echo "Size: ${SIZE_KB} KB"
+        else
+            echo "Size: unknown"
+        fi
         
         # Show symbols (if stripped or not)
         if command -v ${TOOLCHAIN_PREFIX}strip > /dev/null 2>&1; then

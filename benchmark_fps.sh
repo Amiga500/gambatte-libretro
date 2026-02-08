@@ -21,6 +21,13 @@ echo "  OnionOS Performance Testing"
 echo "=========================================="
 echo ""
 
+# Check if bc is available (needed for floating point math)
+if ! command -v bc &> /dev/null; then
+    echo -e "${RED}Error: 'bc' command not found${NC}"
+    echo "Please install bc: sudo apt-get install bc"
+    exit 1
+fi
+
 # Check if RetroArch is available
 if ! command -v $RETROARCH_BIN &> /dev/null; then
     echo -e "${RED}Error: RetroArch not found at $RETROARCH_BIN${NC}"

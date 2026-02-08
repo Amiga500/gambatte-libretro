@@ -51,7 +51,13 @@ static inline int cpu_governor_init(void)
         }
         
         /* Set to default frequency */
-        cpu_governor_set_freq(CPU_FREQ_DEFAULT);
+        if (!cpu_governor_set_freq(CPU_FREQ_DEFAULT))
+        {
+            /* Failed to set frequency - log warning but continue */
+            /* In production, this would use gambatte_log() */
+            cpu_governor_available = 0;
+            return 0;
+        }
         
         return 1;
     }
