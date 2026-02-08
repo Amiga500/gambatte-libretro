@@ -526,6 +526,24 @@ struct retro_core_option_v2_definition option_defs_us[] = {
 #endif
    },
    {
+      "gambatte_performance_mode",
+      "Performance Mode",
+      NULL,
+      "Enables performance optimizations for low-end hardware (Miyoo Mini/OnionOS). Reduces per-frame overhead by checking core options less frequently and using CPU frequency scaling when available. Recommended for fullspeed 60 FPS on demanding games.",
+      NULL,
+      NULL,
+      {
+         { "disabled", NULL },
+         { "enabled",  NULL },
+         { NULL, NULL },
+      },
+#if defined(MIYOO_MINI_NEON_OPT) || defined(DINGUX)
+      "enabled"
+#else
+      "disabled"
+#endif
+   },
+   {
       "gambatte_gb_hwmode",
       "Emulated Hardware (Restart Required)",
       NULL,

@@ -2079,8 +2079,18 @@ static void check_variables(bool startup)
 {
    unsigned i, j;
 
-   unsigned colorCorrection = 0;
+   /* Performance mode option */
+   performance_mode = false;
    struct retro_variable var = {0};
+   var.key   = "gambatte_performance_mode";
+   var.value = NULL;
+   if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var) && var.value)
+   {
+      if (!strcmp(var.value, "enabled"))
+         performance_mode = true;
+   }
+
+   unsigned colorCorrection = 0;
    var.key = "gambatte_gbc_color_correction";
    if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var) && var.value)
    {
