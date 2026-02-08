@@ -1,6 +1,9 @@
 /*
- * NEON-optimized functions for Miyoo Mini Plus (ARM Cortex-A7)
- * These functions use ARM NEON intrinsics for SIMD acceleration
+ * NEON-optimized functions for Miyoo Mini & Miyoo Mini Plus
+ * SigmaStar SSD202D - ARM Cortex-A7 with NEON SIMD support
+ * 
+ * Note: Both devices use identical hardware, so these optimizations
+ * apply to both Miyoo Mini and Miyoo Mini Plus.
  */
 
 #ifndef MIYOO_NEON_H

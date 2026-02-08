@@ -1,6 +1,10 @@
 /*
  * Miyoo Mini / OnionOS Performance Optimizations
- * Target: ARM926EJ-S @ 1.2GHz (original) or ARM Cortex-A7 @ 1.2GHz (Plus), 128MB RAM
+ * Target: SigmaStar SSD202D (ARM Cortex-A7 dual-core @ 1.2GHz, 128MB RAM)
+ * 
+ * Note: Both Miyoo Mini and Miyoo Mini Plus use identical hardware.
+ * Performance differences are only due to manual overclocking via OnionOS.
+ * 
  * Goal: +30% FPS improvement for GB/GBC games
  */
 
@@ -24,7 +28,7 @@
 // Memory allocation optimizations
 #define MIYOO_REDUCE_ALLOCS 1
 
-// Miyoo Mini Plus (Cortex-A7) has NEON support
+// Both Miyoo Mini and Miyoo Mini Plus have NEON support (Cortex-A7)
 #ifdef GAMBATTE_MIYOO_PLUS
 #define MIYOO_HAS_NEON 1
 #endif
