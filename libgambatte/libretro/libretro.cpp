@@ -93,6 +93,11 @@ static gambatte::GB gb2;
 
 bool use_official_bootloader = false;
 
+/* Performance optimizations for low-end devices (Miyoo Mini/OnionOS) */
+static bool performance_mode = false;
+static unsigned check_vars_counter = 0;
+#define CHECK_VARS_INTERVAL 60  /* Only check variables every 60 frames in performance mode */
+
 #define GB_SCREEN_WIDTH 160
 #define VIDEO_WIDTH (GB_SCREEN_WIDTH * NUM_GAMEBOYS)
 #define VIDEO_HEIGHT 144
@@ -2721,9 +2726,24 @@ void retro_run()
 
    frames_count++;
 
-   bool updated = false;
-   if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE_UPDATE, &updated) && updated)
-      check_variables(false);
+   /* Performance optimization: only check variables periodically in performance mode */
+   if (performance_mode)
+   {
+      check_vars_counter++;
+      if (check_vars_counter >= CHECK_VARS_INTERVAL)
+      {
+         check_vars_counter = 0;
+         bool updated = false;
+         if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE_UPDATE, &updated) && updated)
+            check_variables(false);
+      }
+   }
+   else
+   {
+      bool updated = false;
+      if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE_UPDATE, &updated) && updated)
+         check_variables(false);
+   }
 }
 
 unsigned retro_api_version() { return RETRO_API_VERSION; }
