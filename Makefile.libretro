@@ -418,6 +418,29 @@ else ifeq ($(platform), miyoo)
    CXXFLAGS += $(CFLAGS)
    LDFLAGS += -Ofast -flto -fuse-linker-plugin -Wl,--gc-sections -Wl,--as-needed
 
+# MIYOO MINI / ONIONOS (Optimized for Cortex-A7 with NEON)
+else ifeq ($(platform), miyoo-mini)
+   TARGET := $(TARGET_NAME)_libretro.so
+   CC = /opt/miyoo/usr/bin/arm-linux-gcc
+   CXX = /opt/miyoo/usr/bin/arm-linux-g++
+   AR = /opt/miyoo/usr/bin/arm-linux-ar
+   fpic := -fPIC
+   SHARED := -shared -Wl,-version-script=$(version_script) -Wl,--no-undefined
+   PLATFORM_DEFINES := -DDINGUX -DMIYOO_MINI_NEON_OPT
+   # Aggressive optimizations for Miyoo Mini (Cortex-A7 @ 1.2GHz with NEON)
+   CFLAGS += -Ofast \
+	-flto -fuse-linker-plugin \
+	-fdata-sections -ffunction-sections -Wl,--gc-sections \
+	-fno-stack-protector -fomit-frame-pointer \
+	-falign-functions=16 -falign-jumps=16 -falign-loops=16 \
+	-fno-unwind-tables -fno-asynchronous-unwind-tables \
+	-fmerge-all-constants -fno-math-errno \
+	-marm -mcpu=cortex-a7 -mtune=cortex-a7 -mfpu=neon-vfpv4 -mfloat-abi=hard \
+	-mvectorize-with-neon-quad -funsafe-math-optimizations
+   CXXFLAGS += $(CFLAGS)
+   LDFLAGS += -Ofast -flto -fuse-linker-plugin
+   HAVE_NETWORK=1
+
 # Windows MSVC 2003 Xbox 1
 else ifeq ($(platform), xbox1_msvc2003)
 TARGET := $(TARGET_NAME)_libretro_xdk1.lib
