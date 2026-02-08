@@ -427,7 +427,7 @@ else ifeq ($(platform), miyoo-plus)
    SHARED := -shared -Wl,-version-script=$(version_script)
    PLATFORM_DEFINES := -DDINGUX -DGAMBATTE_MIYOO_OPTIMIZATIONS -DGAMBATTE_MIYOO_PLUS
    CFLAGS += -Ofast \
-   -flto=2 -fuse-linker-plugin \
+   -flto -fuse-linker-plugin \
    -fomit-frame-pointer -ffast-math \
    -march=armv7-a -mtune=cortex-a7 -mfpu=neon-vfpv4 -mfloat-abi=hard \
    -fdata-sections -ffunction-sections -Wl,--gc-sections \
@@ -440,7 +440,7 @@ else ifeq ($(platform), miyoo-plus)
    -ftree-vectorize -ftree-loop-vectorize -fvect-cost-model=cheap \
    -marm -mvectorize-with-neon-quad
    CXXFLAGS += $(CFLAGS)
-   LDFLAGS += -Ofast -flto=2 -fuse-linker-plugin -Wl,--gc-sections -Wl,--as-needed
+   LDFLAGS += -Ofast -flto -fuse-linker-plugin -Wl,--gc-sections -Wl,--as-needed
 
 # Windows MSVC 2003 Xbox 1
 else ifeq ($(platform), xbox1_msvc2003)

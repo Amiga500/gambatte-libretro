@@ -65,10 +65,8 @@ static inline void gbcToRgb565_neon_nocc(const uint16_t* bgr15_input, uint16_t* 
    uint16x4_t g = vand_u16(vshr_n_u16(bgr15, 5), vdup_n_u16(0x1F));
    uint16x4_t b = vshr_n_u16(bgr15, 10);
    
-   // Expand G from 5 to 6 bits (shift left by 1)
-   g = vshl_n_u16(g, 1);
-   
    // Pack into RGB565: RRRRR GGGGGG BBBBB
+   // Green stays at 5 bits, shifted to position 5
    uint16x4_t rgb565 = vorr_u16(vshl_n_u16(r, 11),
                         vorr_u16(vshl_n_u16(g, 5), b));
    
@@ -85,7 +83,8 @@ static inline void audio_resample_mac_neon(int32_t* accum_l, int32_t* accum_r,
    int32x4_t acc_l = vld1q_s32(accum_l);
    int32x4_t acc_r = vld1q_s32(accum_r);
    
-   for (unsigned i = 0; i < (count & ~3); i += 4)
+   unsigned i;
+   for (i = 0; i < (count & ~3); i += 4)
    {
       // Load 4 stereo samples (L,R,L,R,L,R,L,R)
       int16x4x2_t stereo = vld2_s16(samples + i * 2);
@@ -100,6 +99,13 @@ static inline void audio_resample_mac_neon(int32_t* accum_l, int32_t* accum_r,
    
    vst1q_s32(accum_l, acc_l);
    vst1q_s32(accum_r, acc_r);
+   
+   // Handle remaining samples (scalar fallback)
+   for (; i < count; i++)
+   {
+      accum_l[0] += samples[i * 2] * kernel[i];
+      accum_r[0] += samples[i * 2 + 1] * kernel[i];
+   }
 }
 
 } // namespace gambatte

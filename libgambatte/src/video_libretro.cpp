@@ -203,7 +203,7 @@ namespace gambatte
       const unsigned bFinal = ((r * 3) + (g * 2) + (b * 11)) >> 4;
 
 #ifdef VIDEO_RGB565
-      return rFinal << 11 | gFinal << 6 | bFinal;
+      return rFinal << 11 | gFinal << 5 | bFinal;
 #elif defined(VIDEO_ABGR1555)
       return bFinal << 10 | gFinal << 5 | rFinal;
 #else
@@ -218,7 +218,7 @@ namespace gambatte
       const unsigned b = bgr15 >> 10 & 0x1F;
 
 #ifdef VIDEO_RGB565
-      return r << 11 | g << 6 | b;
+      return r << 11 | g << 5 | b;
 #elif defined(VIDEO_ABGR1555)
       return b << 10 | g << 5 | r;
 #else
