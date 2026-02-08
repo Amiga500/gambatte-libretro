@@ -393,7 +393,7 @@ else ifeq ($(platform), retrofw)
    CFLAGS += -fomit-frame-pointer -ffast-math -march=mips32 -mtune=mips32 -mhard-float
    CXXFLAGS += $(CFLAGS)
 
-# MIYOO
+# MIYOO (Original - ARM926EJ-S)
 else ifeq ($(platform), miyoo)
    TARGET := $(TARGET_NAME)_libretro.so
    CC = /opt/miyoo/usr/bin/arm-linux-gcc
@@ -401,9 +401,46 @@ else ifeq ($(platform), miyoo)
    AR = /opt/miyoo/usr/bin/arm-linux-ar
    fpic := -fPIC
    SHARED := -shared -Wl,-version-script=$(version_script)
-   PLATFORM_DEFINES := -DDINGUX
-   CFLAGS += -fomit-frame-pointer -ffast-math -march=armv5te -mtune=arm926ej-s
+   PLATFORM_DEFINES := -DDINGUX -DGAMBATTE_MIYOO_OPTIMIZATIONS
+   CFLAGS += -Ofast \
+   -fomit-frame-pointer -ffast-math \
+   -march=armv5te -mtune=arm926ej-s \
+   -fdata-sections -ffunction-sections -Wl,--gc-sections \
+   -fno-stack-protector -fno-ident \
+   -falign-functions=32 -falign-jumps=32 -falign-loops=32 \
+   -fno-unwind-tables -fno-asynchronous-unwind-tables \
+   -fmerge-all-constants -fno-math-errno \
+   -finline-functions -funswitch-loops \
+   -fpredictive-commoning -fgcse-after-reload \
+   -ftree-vectorize -fvect-cost-model=cheap \
+   -marm -mno-thumb-interwork
    CXXFLAGS += $(CFLAGS)
+   LDFLAGS += -Wl,--gc-sections -Wl,--as-needed
+
+# MIYOO MINI PLUS (ARM Cortex-A7 with NEON)
+else ifeq ($(platform), miyoo-plus)
+   TARGET := $(TARGET_NAME)_libretro.so
+   CC = /opt/miyoo/usr/bin/arm-linux-gcc
+   CXX = /opt/miyoo/usr/bin/arm-linux-g++
+   AR = /opt/miyoo/usr/bin/arm-linux-ar
+   fpic := -fPIC
+   SHARED := -shared -Wl,-version-script=$(version_script)
+   PLATFORM_DEFINES := -DDINGUX -DGAMBATTE_MIYOO_OPTIMIZATIONS -DGAMBATTE_MIYOO_PLUS
+   CFLAGS += -Ofast \
+   -flto=2 -fuse-linker-plugin \
+   -fomit-frame-pointer -ffast-math \
+   -march=armv7-a -mtune=cortex-a7 -mfpu=neon-vfpv4 -mfloat-abi=hard \
+   -fdata-sections -ffunction-sections -Wl,--gc-sections \
+   -fno-stack-protector -fno-ident \
+   -falign-functions=32 -falign-jumps=32 -falign-loops=32 \
+   -fno-unwind-tables -fno-asynchronous-unwind-tables \
+   -fmerge-all-constants -fno-math-errno \
+   -finline-functions -funswitch-loops \
+   -fpredictive-commoning -fgcse-after-reload \
+   -ftree-vectorize -ftree-loop-vectorize -fvect-cost-model=cheap \
+   -marm -mvectorize-with-neon-quad
+   CXXFLAGS += $(CFLAGS)
+   LDFLAGS += -Ofast -flto=2 -fuse-linker-plugin -Wl,--gc-sections -Wl,--as-needed
 
 # Windows MSVC 2003 Xbox 1
 else ifeq ($(platform), xbox1_msvc2003)

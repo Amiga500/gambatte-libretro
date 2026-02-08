@@ -19,6 +19,7 @@
 #include "cpu.h"
 #include "gambatte-memory.h"
 #include "savestate.h"
+#include "../libretro/miyoo_optimizations.h"
 
 namespace gambatte {
 
@@ -1012,7 +1013,12 @@ void CPU::process(unsigned long const cycles) {
 
 					if (cycleCounter < mem_.nextEventTime()) {
 						unsigned long cycles = mem_.nextEventTime() - cycleCounter;
+#ifdef MIYOO_FAST_HALT
+						// Miyoo optimization: skip 4-cycle alignment for better performance
+						cycleCounter += cycles;
+#else
 						cycleCounter += cycles + (-cycles & 3);
+#endif
 					}
 				}
 
