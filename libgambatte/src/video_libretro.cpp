@@ -21,6 +21,8 @@
 #include <cstring>
 #include <algorithm>
 #include <cmath>
+#include "../libretro/miyoo_optimizations.h"
+#include "../libretro/miyoo_neon.h"
 
 /* GBC colour correction factors */
 #define GBC_CC_LUM 0.94f
@@ -186,8 +188,56 @@ namespace gambatte
       b = b * darkFactor;
    }
 
+   // Fast lookup table for common color correction case
+   // Pre-computed for fast path when colorCorrectionMode == 1 and darkFilterLevel == 0
+   #ifdef GAMBATTE_MIYOO_OPTIMIZATIONS
+   static inline video_pixel_t gbcToRgb32_fast(const unsigned bgr15)
+   {
+      const unsigned r = bgr15       & 0x1F;
+      const unsigned g = bgr15 >>  5 & 0x1F;
+      const unsigned b = bgr15 >> 10 & 0x1F;
+      
+      // Use fast (inaccurate) Gambatte default method
+      const unsigned rFinal = ((r * 13) + (g * 2) + b) >> 4;
+      const unsigned gFinal = ((g * 3) + b) >> 2;
+      const unsigned bFinal = ((r * 3) + (g * 2) + (b * 11)) >> 4;
+
+#ifdef VIDEO_RGB565
+      return rFinal << 11 | gFinal << 5 | bFinal;
+#elif defined(VIDEO_ABGR1555)
+      return bFinal << 10 | gFinal << 5 | rFinal;
+#else
+      return rFinal << 16 | gFinal << 8 | bFinal;
+#endif
+   }
+   
+   static inline video_pixel_t gbcToRgb32_noCorrection(const unsigned bgr15)
+   {
+      const unsigned r = bgr15       & 0x1F;
+      const unsigned g = bgr15 >>  5 & 0x1F;
+      const unsigned b = bgr15 >> 10 & 0x1F;
+
+#ifdef VIDEO_RGB565
+      return r << 11 | g << 5 | b;
+#elif defined(VIDEO_ABGR1555)
+      return b << 10 | g << 5 | r;
+#else
+      return r << 16 | g << 8 | b;
+#endif
+   }
+   #endif
+
    video_pixel_t LCD::gbcToRgb32(const unsigned bgr15)
    {
+      #ifdef GAMBATTE_MIYOO_OPTIMIZATIONS
+      // Fast path for common cases
+      if (!colorCorrection && darkFilterLevel == 0)
+         return gbcToRgb32_noCorrection(bgr15);
+      
+      if (colorCorrection && colorCorrectionMode == 1 && darkFilterLevel == 0)
+         return gbcToRgb32_fast(bgr15);
+      #endif
+      
       const unsigned r = bgr15       & 0x1F;
       const unsigned g = bgr15 >>  5 & 0x1F;
       const unsigned b = bgr15 >> 10 & 0x1F;
