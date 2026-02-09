@@ -769,8 +769,8 @@ else
 	$(LD) $(fpic) $(SHARED) $(INCLUDES) $(LFLAGS) $(LINKOUT)$@ $(OBJECTS) $(LIBS) $(LDFLAGS)
 endif
 
-CFLAGS   += $(INCFLAGS)
-CXXFLAGS += $(INCFLAGS)
+override CFLAGS   += $(INCFLAGS)
+override CXXFLAGS += $(INCFLAGS)
 
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $(OBJOUT)$@ $<
