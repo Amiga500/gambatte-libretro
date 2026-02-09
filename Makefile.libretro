@@ -720,8 +720,8 @@ ifeq ($(HAVE_NETWORK), 1)
    DEFINES += -DHAVE_NETWORK
 endif
 
-CFLAGS   += $(fpic) $(DEFINES)
-CXXFLAGS += $(fpic) $(DEFINES)
+override CFLAGS   += $(fpic) $(DEFINES)
+override CXXFLAGS += $(fpic) $(DEFINES)
 
 OBJOUT   = -o
 LINKOUT  = -o 

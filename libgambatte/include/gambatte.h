@@ -27,6 +27,10 @@
 #include <string>
 #include <cstddef>
 
+#ifdef HAVE_STDINT_H
+#include <stdint.h>
+#endif
+
 namespace gambatte {
 #if defined(VIDEO_RGB565) || defined(VIDEO_ABGR1555)
 typedef uint16_t video_pixel_t;
