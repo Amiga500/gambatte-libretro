@@ -714,14 +714,30 @@ endif
 
 # Support for CROSS_COMPILE prefix (e.g., CROSS_COMPILE=arm-linux-gnueabihf-)
 # This allows users to specify a cross-compiler prefix for any platform
+# Only applies if CC/CXX/AR haven't been explicitly set by platform-specific code
 ifneq ($(CROSS_COMPILE),)
-   ifeq ($(CC),cc)
+   # Check if CC is still at a default value (not platform-customized)
+   ifeq ($(origin CC),default)
+      CC = $(CROSS_COMPILE)gcc
+   else ifeq ($(CC),cc)
+      CC = $(CROSS_COMPILE)gcc
+   else ifeq ($(CC),gcc)
       CC = $(CROSS_COMPILE)gcc
    endif
-   ifeq ($(CXX),c++)
+   
+   # Check if CXX is still at a default value
+   ifeq ($(origin CXX),default)
+      CXX = $(CROSS_COMPILE)g++
+   else ifeq ($(CXX),c++)
+      CXX = $(CROSS_COMPILE)g++
+   else ifeq ($(CXX),g++)
       CXX = $(CROSS_COMPILE)g++
    endif
-   ifeq ($(AR),ar)
+   
+   # Check if AR is still at a default value
+   ifeq ($(origin AR),default)
+      AR = $(CROSS_COMPILE)ar
+   else ifeq ($(AR),ar)
       AR = $(CROSS_COMPILE)ar
    endif
 endif
