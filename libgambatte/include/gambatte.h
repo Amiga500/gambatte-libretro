@@ -27,8 +27,13 @@
 #include <string>
 #include <cstddef>
 
-#ifdef HAVE_STDINT_H
+#if defined(HAVE_STDINT_H)
 #include <stdint.h>
+#elif defined(HAVE_CSTDINT)
+#include <cstdint>
+using std::uint8_t;
+using std::uint16_t;
+using std::uint32_t;
 #endif
 
 namespace gambatte {
