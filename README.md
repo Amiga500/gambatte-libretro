@@ -4,6 +4,27 @@
 This repo contains 2 new palettes color organisation for Gambatte libretro core.
 It also contains a workflow for automated build for the Miyoo Mini.
 
+## Building the Libretro Core
+
+For native builds (x86-64/ARM on the same architecture):
+```bash
+make -f Makefile.libretro platform=unix
+```
+
+For cross-compilation (e.g., building for ARM on x86-64):
+```bash
+# For Miyoo Mini / OnionOS (recommended)
+./build_miyoo.sh miyoo-mini
+
+# Or manually with custom toolchain
+make -f Makefile.libretro platform=miyoo-mini TOOLCHAIN_PREFIX=/path/to/arm-linux-
+
+# Generic cross-compilation
+make -f Makefile.libretro platform=unix CROSS_COMPILE=arm-linux-gnueabihf-
+```
+
+See [CROSS_COMPILE.md](CROSS_COMPILE.md) for detailed cross-compilation instructions.
+
 
 What is this new palettes organization ?
 --------------------------------
