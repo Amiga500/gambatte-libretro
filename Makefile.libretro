@@ -396,9 +396,13 @@ else ifeq ($(platform), retrofw)
 # MIYOO (Both Mini and Mini Plus - SigmaStar SSD202D, ARM Cortex-A7 dual-core @ 1.2GHz)
 else ifeq ($(platform), miyoo)
    TARGET := $(TARGET_NAME)_libretro.so
-   CC = /opt/miyoo/usr/bin/arm-linux-gcc
-   CXX = /opt/miyoo/usr/bin/arm-linux-g++
-   AR = /opt/miyoo/usr/bin/arm-linux-ar
+   # Allow override of toolchain path via TOOLCHAIN_PREFIX
+   ifeq ($(TOOLCHAIN_PREFIX),)
+      TOOLCHAIN_PREFIX = /opt/miyoo/usr/bin/arm-linux-
+   endif
+   CC = $(TOOLCHAIN_PREFIX)gcc
+   CXX = $(TOOLCHAIN_PREFIX)g++
+   AR = $(TOOLCHAIN_PREFIX)ar
    fpic := -fPIC
    SHARED := -shared -Wl,-version-script=$(version_script)
    PLATFORM_DEFINES := -DDINGUX -DGAMBATTE_MIYOO_OPTIMIZATIONS -DGAMBATTE_MIYOO_PLUS
@@ -421,9 +425,13 @@ else ifeq ($(platform), miyoo)
 # MIYOO MINI / ONIONOS (Optimized for Cortex-A7 with NEON)
 else ifeq ($(platform), miyoo-mini)
    TARGET := $(TARGET_NAME)_libretro.so
-   CC = /opt/miyoo/usr/bin/arm-linux-gcc
-   CXX = /opt/miyoo/usr/bin/arm-linux-g++
-   AR = /opt/miyoo/usr/bin/arm-linux-ar
+   # Allow override of toolchain path via TOOLCHAIN_PREFIX
+   ifeq ($(TOOLCHAIN_PREFIX),)
+      TOOLCHAIN_PREFIX = /opt/miyoo/usr/bin/arm-linux-
+   endif
+   CC = $(TOOLCHAIN_PREFIX)gcc
+   CXX = $(TOOLCHAIN_PREFIX)g++
+   AR = $(TOOLCHAIN_PREFIX)ar
    fpic := -fPIC
    SHARED := -shared -Wl,-version-script=$(version_script) -Wl,--no-undefined
    PLATFORM_DEFINES := -DDINGUX -DMIYOO_MINI_NEON_OPT
@@ -702,6 +710,20 @@ ifneq ($(SANITIZER),)
    CFLAGS   += -fsanitize=$(SANITIZER)
    CXXFLAGS += -fsanitize=$(SANITIZER)
    LDFLAGS  += -fsanitize=$(SANITIZER)
+endif
+
+# Support for CROSS_COMPILE prefix (e.g., CROSS_COMPILE=arm-linux-gnueabihf-)
+# This allows users to specify a cross-compiler prefix for any platform
+ifneq ($(CROSS_COMPILE),)
+   ifeq ($(CC),cc)
+      CC = $(CROSS_COMPILE)gcc
+   endif
+   ifeq ($(CXX),c++)
+      CXX = $(CROSS_COMPILE)g++
+   endif
+   ifeq ($(AR),ar)
+      AR = $(CROSS_COMPILE)ar
+   endif
 endif
 
 CORE_DIR := libgambatte/src
