@@ -396,9 +396,13 @@ else ifeq ($(platform), retrofw)
 # MIYOO (Both Mini and Mini Plus - SigmaStar SSD202D, ARM Cortex-A7 dual-core @ 1.2GHz)
 else ifeq ($(platform), miyoo)
    TARGET := $(TARGET_NAME)_libretro.so
-   CC = /opt/miyoo/usr/bin/arm-linux-gcc
-   CXX = /opt/miyoo/usr/bin/arm-linux-g++
-   AR = /opt/miyoo/usr/bin/arm-linux-ar
+   # Allow override of toolchain path via TOOLCHAIN_PREFIX
+   ifeq ($(TOOLCHAIN_PREFIX),)
+      TOOLCHAIN_PREFIX = /opt/miyoo/usr/bin/arm-linux-
+   endif
+   CC = $(TOOLCHAIN_PREFIX)gcc
+   CXX = $(TOOLCHAIN_PREFIX)g++
+   AR = $(TOOLCHAIN_PREFIX)ar
    fpic := -fPIC
    SHARED := -shared -Wl,-version-script=$(version_script)
    PLATFORM_DEFINES := -DDINGUX -DGAMBATTE_MIYOO_OPTIMIZATIONS -DGAMBATTE_MIYOO_PLUS
@@ -421,9 +425,13 @@ else ifeq ($(platform), miyoo)
 # MIYOO MINI / ONIONOS (Optimized for Cortex-A7 with NEON)
 else ifeq ($(platform), miyoo-mini)
    TARGET := $(TARGET_NAME)_libretro.so
-   CC = /opt/miyoo/usr/bin/arm-linux-gcc
-   CXX = /opt/miyoo/usr/bin/arm-linux-g++
-   AR = /opt/miyoo/usr/bin/arm-linux-ar
+   # Allow override of toolchain path via TOOLCHAIN_PREFIX
+   ifeq ($(TOOLCHAIN_PREFIX),)
+      TOOLCHAIN_PREFIX = /opt/miyoo/usr/bin/arm-linux-
+   endif
+   CC = $(TOOLCHAIN_PREFIX)gcc
+   CXX = $(TOOLCHAIN_PREFIX)g++
+   AR = $(TOOLCHAIN_PREFIX)ar
    fpic := -fPIC
    SHARED := -shared -Wl,-version-script=$(version_script) -Wl,--no-undefined
    PLATFORM_DEFINES := -DDINGUX -DMIYOO_MINI_NEON_OPT
@@ -704,6 +712,36 @@ ifneq ($(SANITIZER),)
    LDFLAGS  += -fsanitize=$(SANITIZER)
 endif
 
+# Support for CROSS_COMPILE prefix (e.g., CROSS_COMPILE=arm-linux-gnueabihf-)
+# This allows users to specify a cross-compiler prefix for any platform
+# Only applies if CC/CXX/AR haven't been explicitly set by platform-specific code
+ifneq ($(CROSS_COMPILE),)
+   # Check if CC is still at a default value (not platform-customized)
+   ifeq ($(origin CC),default)
+      CC = $(CROSS_COMPILE)gcc
+   else ifeq ($(CC),cc)
+      CC = $(CROSS_COMPILE)gcc
+   else ifeq ($(CC),gcc)
+      CC = $(CROSS_COMPILE)gcc
+   endif
+   
+   # Check if CXX is still at a default value
+   ifeq ($(origin CXX),default)
+      CXX = $(CROSS_COMPILE)g++
+   else ifeq ($(CXX),c++)
+      CXX = $(CROSS_COMPILE)g++
+   else ifeq ($(CXX),g++)
+      CXX = $(CROSS_COMPILE)g++
+   endif
+   
+   # Check if AR is still at a default value
+   ifeq ($(origin AR),default)
+      AR = $(CROSS_COMPILE)ar
+   else ifeq ($(AR),ar)
+      AR = $(CROSS_COMPILE)ar
+   endif
+endif
+
 CORE_DIR := libgambatte/src
 
 include Makefile.common
@@ -720,8 +758,8 @@ ifeq ($(HAVE_NETWORK), 1)
    DEFINES += -DHAVE_NETWORK
 endif
 
-CFLAGS   += $(fpic) $(DEFINES)
-CXXFLAGS += $(fpic) $(DEFINES)
+override CFLAGS   += $(fpic) $(DEFINES)
+override CXXFLAGS += $(fpic) $(DEFINES)
 
 OBJOUT   = -o
 LINKOUT  = -o 
@@ -769,8 +807,8 @@ else
 	$(LD) $(fpic) $(SHARED) $(INCLUDES) $(LFLAGS) $(LINKOUT)$@ $(OBJECTS) $(LIBS) $(LDFLAGS)
 endif
 
-CFLAGS   += $(INCFLAGS)
-CXXFLAGS += $(INCFLAGS)
+override CFLAGS   += $(INCFLAGS)
+override CXXFLAGS += $(INCFLAGS)
 
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $(OBJOUT)$@ $<

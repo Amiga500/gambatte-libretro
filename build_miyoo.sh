@@ -80,7 +80,7 @@ make -f Makefile.libretro platform=$PLATFORM clean > /dev/null 2>&1 || true
 
 # Build
 echo "Building gambatte_libretro.so..."
-if make -f Makefile.libretro platform=$PLATFORM -j$JOBS; then
+if make -f Makefile.libretro platform=$PLATFORM TOOLCHAIN_PREFIX="$TOOLCHAIN_PREFIX" -j$JOBS; then
     echo ""
     echo -e "${GREEN}========================================${NC}"
     echo -e "${GREEN}  Build Successful!${NC}"
